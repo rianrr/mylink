@@ -1,150 +1,85 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Share } from 'react-native';
+import React from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Share,
+} from "react-native";
 
-import { ModalContainer, Container, Header, LinkArea, Title, LongUrl, ShortLinkArea, ShortLinkUrl } from './modalStyle';
-import { Feather } from '@expo/vector-icons';
-import Clipboard from 'expo-clipboard';
+import {
+  ModalContainer,
+  Container,
+  Header,
+  LinkArea,
+  Title,
+  LongUrl,
+  ShortLinkArea,
+  ShortLinkUrl,
+} from "./modalStyle";
+import { Feather } from "@expo/vector-icons";
+import Clipboard from "expo-clipboard";
 
 export default function ModalLink({ onClose, data }) {
+  function copyLink() {
+    Clipboard.setString(data.link);
 
-    function copyLink() {
+    alert("Link copiado com sucesso!");
+  }
 
-        Clipboard.setString(data.link);
+  async function handleShare() {
+    try {
+      const result = await Share.share({
+        message: `Link: ${data.link}`,
+      });
 
-        alert('Link copiado com sucesso!');
+      if (result.action === share.shareAction) {
+        if (result.activeType) {
+          console.log("ActiveType");
+        } else {
+          // Compartilhou
 
-    }
-
-    async function handleShare() {
-
-        try {
-
-            const result = await Share.share({ 
-
-                message: `Link: ${ data.link }`
-
-            })
-
-            if(result.action === share.shareAction) {
-
-                if(result.activeType) {
-
-                    console.log('ActiveType');
-
-                } else {
-
-                    // Compartilhou
-
-                    console.log('Compartilhado com sucesso!');
-
-                }
-
-            } else if(result.action === Share.dismissedAction) {
-
-                console.log('Modal fechado');
-
-            }
-
-        } catch(error) {
-
-            console.log(error.message);
-
+          console.log("Compartilhado com sucesso!");
         }
-
+      } else if (result.action === Share.dismissedAction) {
+        console.log("Modal fechado");
+      }
+    } catch (error) {
+      console.log(error.message);
     }
+  }
 
-    return (
+  return (
+    <ModalContainer>
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={{ flex: 1 }}></View>
+      </TouchableWithoutFeedback>
 
-        <ModalContainer>
+      <Container>
+        <Header>
+          <TouchableOpacity onPress={onClose}>
+            <Feather name="x" color="#212743" size={30} />
+          </TouchableOpacity>
 
-            <TouchableWithoutFeedback onPress = { onClose }>
+          <TouchableOpacity onPress={handleShare}>
+            <Feather name="share" color="#212743" size={30} />
+          </TouchableOpacity>
+        </Header>
 
-                <View style = {{ flex: 1 }}></View>
+        <LinkArea>
+          <Title>Link encurtado</Title>
 
-            </TouchableWithoutFeedback>
+          <LongUrl numberOfLines={1}>{data.long_url}</LongUrl>
 
-            <Container>
+          <ShortLinkArea activeOpacity={1} onPress={copyLink}>
+            <ShortLinkUrl numberOfLines={1}>{data.link}</ShortLinkUrl>
 
-                <Header>
-
-                    <TouchableOpacity onPress = { onClose }>
-
-                        <Feather 
-
-                            name = 'x'
-                            color = '#212743'
-                            size = { 30 }
-
-                        />
-
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress = { handleShare }>
-
-                        <Feather 
-
-                            name = 'share'
-                            color = '#212743'
-                            size = { 30 }
-
-                        />
-
-                    </TouchableOpacity>
-
-                </Header>
-
-                <LinkArea>
-
-                    <Title>Link encurtado</Title>
-
-                    <LongUrl
-
-                    numberOfLines = { 1 }
-
-                    >
-
-                        { data.long_url }
-
-                    </LongUrl>
-
-                    <ShortLinkArea
-
-                        activeOpacity = { 1 }
-                        onPress = { copyLink }
-
-                    >
-
-                        <ShortLinkUrl 
-
-                            numberOfLines = { 1 }
-
-                        >
-                        
-                            { data.link }
-                        
-                        </ShortLinkUrl>
-
-                        <TouchableOpacity onPress = { copyLink }>
-
-                            <Feather 
-
-                                name = 'copy'
-                                color = '#fff'
-                                size = { 25 }
-
-                            />
-
-                        </TouchableOpacity>
-
-
-                    </ShortLinkArea>
-
-                </LinkArea>
-
-            </Container>
-
-        </ModalContainer>
-
-    );
-
+            <TouchableOpacity onPress={copyLink}>
+              <Feather name="copy" color="#fff" size={25} />
+            </TouchableOpacity>
+          </ShortLinkArea>
+        </LinkArea>
+      </Container>
+    </ModalContainer>
+  );
 }

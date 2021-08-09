@@ -1,59 +1,49 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Buscar os links salvos.
 
 export async function getLinksSave(key) {
+  const myLinks = await AsyncStorage.getItem(key);
 
-    const myLinks = await AsyncStorage.getItem(key);
+  let linkSaves = JSON.parse(myLinks) || [];
 
-    let linkSaves = JSON.parse(myLinks) || [];
-
-    return linkSaves;
-
+  return linkSaves;
 }
 
 // Salvar um link no storage.
 
 export async function saveLink(key, newLink) {
+  let linksStored = await getLinksSave(key);
 
-    let linksStored = await getLinksSave(key);
+  // Caso tenha um link com o mesmo id ou duplicado, preciso ignorar.
 
-    // Caso tenha um link com o mesmo id ou duplicado, preciso ignorar.
+  const hasLink = linksStored.some((link) => link.id === newLink.id);
 
-    const hasLink = linksStored.some(link => link.id === newLink.id);
+  if (hasLink) {
+    console.log("ja existe");
 
-    if(hasLink) {
+    // Parar execução.
 
-        console.log('ja existe');
+    return;
+  }
 
-        // Parar execução.
+  linksStored.push(newLink);
 
-        return;
+  await AsyncStorage.setItem(key, JSON.stringify(linksStored));
 
-    }
-
-    linksStored.push(newLink);
-
-    await AsyncStorage.setItem(key, JSON.stringify(linksStored));
-
-    console.log('link salvo');
-
+  console.log("link salvo");
 }
 
 // Deletar algum link.
 
 export async function deleteLink(links, id) {
+  let myLinks = links.filter((item) => {
+    return item.id !== id;
+  });
 
-    let myLinks = links.filter( (item) => {
+  await AsyncStorage.setItem("links", JSON.stringify(myLinks));
 
-        return (item.id !== id)
+  console.log("deletado");
 
-    })
-
-    await AsyncStorage.setItem('links', JSON.stringify(myLinks));
-
-    console.log('deletado');
-
-    return myLinks;
-
+  return myLinks;
 }
